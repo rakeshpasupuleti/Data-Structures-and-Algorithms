@@ -38,6 +38,48 @@ vector<vector<int>> rotateMatrix(int M, int N, vector<vector<int>> Mat) {
 
     return Mat;
 }
+
+/*
+Spirally traversing a matrix
+Given a matrix of size r*c. Traverse the matrix in spiral form.
+*/
+
+vector<int> spirallyTraverse(vector<vector<int> > matrix, int r, int c) 
+    {
+        // code here 
+        vector<int> result;
+        int top = 0, bottom = r - 1, left = 0, right = c - 1;
+        
+        while (top <= bottom && left <= right) {
+            // Traverse the top row
+            for (int i = left; i <= right; ++i)
+                result.push_back(matrix[top][i]);
+            ++top;
+            
+            // Traverse the rightmost column
+            for (int i = top; i <= bottom; ++i)
+                result.push_back(matrix[i][right]);
+            --right;
+            
+            // Check if there is a bottom row to traverse
+            if (top <= bottom) {
+                for (int i = right; i >= left; --i)
+                    result.push_back(matrix[bottom][i]);
+                --bottom;
+            }
+            
+            // Check if there is a leftmost column to traverse
+            if (left <= right) {
+                for (int i = bottom; i >= top; --i)
+                    result.push_back(matrix[i][left]);
+                ++left;
+            }
+        }
+        
+        return result;
+    }
+
+    
 int main() {
     // Test Case 1
     vector<vector<int>> a = {
