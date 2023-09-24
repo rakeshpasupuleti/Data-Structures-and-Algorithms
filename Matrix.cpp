@@ -78,8 +78,57 @@ vector<int> spirallyTraverse(vector<vector<int> > matrix, int r, int c)
         
         return result;
     }
+/*
+Search in a row-column sorted Matrix
+Given a matrix of size n x m, where every row and column is sorted in increasing order, and a number x.
+ Find whether element x is present in the matrix or not.
+*/
+bool search(vector<vector<int> > matrix, int n, int m, int x) 
+    {
+        // code here 
+      if(n==0 or m==0)
+        return -1;
+      if(x<matrix[0][0] or x>matrix[n-1][m-1])
+        return -1;
+      
+      int row=0,col=m-1;
+      while(row<n and col>=0)
+      {
+          if(matrix[row][col]==x)
+            return 1;
+          else if(matrix[row][col]>x)
+           col--;
+          else
+            row++;
+      }
+      return 0;
+    }
+/*
+Maximum no of 1's row
+Given a boolean 2D array, where each row is sorted. Find the row with the maximum number of 1s.
+*/
 
-    
+int maxOnes (vector <vector <int>> &Mat, int N, int M)
+        {
+            // your code here
+            int result=-1,min_index=INT_MAX,temp_index=-1;
+            
+            for(int i=0; i<N; ++i) {
+                
+                temp_index = lower_bound(Mat[i].begin(), Mat[i].end(), 1) - Mat[i].begin();
+
+                // Check if temp_index is valid (within bounds of the row)
+                if(temp_index < M && temp_index < min_index ) {
+                    
+                    result=i;
+                    min_index=temp_index;
+                }
+            }
+            
+            return result;
+            
+        }
+
 int main() {
     // Test Case 1
     vector<vector<int>> a = {
