@@ -2,6 +2,7 @@
 using namespace std;
 #include<vector>
 #include <algorithm>
+#include<unordered_map>
 
 /*
 Rotate matrix elements clockwise
@@ -170,26 +171,73 @@ int median(vector<vector<int>> &matrix, int R, int C){
        
        return min_ele;
     }
+/*
+Number of Palindromic paths in a Matrix
+Given a matrix containing lower alphabetical characters only of size n*m.
+We need to count the number of palindromic paths in the given matrix.
+A path is defined as a sequence of cells starting from top-left cell and ending at bottom-right cell.
+We are allowed to move to right and down only from current cell.
+*/
 
+long long int mod = 1000000007; // Modulus for handling large numbers.
+unordered_map<string, long long int> umap; // Memoization cache using a map.
+
+// Recursive function to count palindromic paths.
+int count_paths(vector<vector<char>> matrix, int row1, int col1, int row2, int col2) {
+    // Base cases:
+    // 1. If either starting or ending positions go out of bounds, return 0.
+    if (row1 >= matrix.size() || col1 >= matrix[0].size() || row2 < 0 || col2 < 0)
+        return 0;
+    
+    // 2. If characters at corresponding positions are different, return 0.
+    if (matrix[row1][col1] != matrix[row2][col2])
+        return 0;
+    
+    // 3. If the positions coincide or are adjacent, return 1 (a palindrome path of length 1).
+    if ((row1 == row2 && col1 == col2) || (abs(row1 - row2) + abs(col1 - col2)) <= 1)
+        return 1;
+    
+    // 4. If (row1, col1) is beyond (row2, col2) in terms of row or column indices, return 0.
+    if (row1 > row2 || col1 > col2)
+        return 0;
+
+    // Generate a unique key for memoization based on the starting and ending positions.
+    string key = to_string(row1) + to_string(col1) + to_string(row2) + to_string(col2);
+    
+    // Check if the result for this key is already cached, and if so, return it.
+    if (umap.find(key) != umap.end())
+        return umap[key];
+
+    // Recursively explore paths in four possible directions and memoize the result.
+    long long path1 = count_paths(matrix, row1 + 1, col1, row2 - 1, col2) % mod;
+    long long path2 = count_paths(matrix, row1 + 1, col1, row2, col2 - 1) % mod;
+    long long path3 = count_paths(matrix, row1, col1 + 1, row2 - 1, col2) % mod;
+    long long path4 = count_paths(matrix, row1, col1 + 1, row2, col2 - 1) % mod;
+
+    // Store the result in the memoization cache.
+    umap[key] = (path1 + path2 + path3 + path4) % mod;
+
+    // Return the calculated result.
+    return umap[key];
+}
+
+// Main function to count palindromic paths in the matrix.
+int countPalindromicPaths(vector<vector<char>> matrix) {
+    // Start counting palindromic paths from (0, 0) to the last cell in the matrix.
+    return count_paths(matrix, 0, 0, matrix.size() - 1, matrix[0].size() - 1);
+}
 
 int main() {
     // Test Case 1
-    vector<vector<int>> a = {
-        {1, 2, 3, 4},
-        {5, 6, 7, 8},
-        {9, 10, 11, 12},
-        {13, 14, 15, 16}
+    vector<vector<char>> matrix = {
+        {'a', 'a', 'a', 'b'},
+        {'b', 'a', 'a', 'a'},
+        {'a', 'b', 'b', 'a'}
     };
 
-    vector<vector<int>> rotated = rotateMatrix(a.size(), a[0].size(), a);
+    int result = countPalindromicPaths(matrix);
 
-    // Print the rotated matrix for testing
-    for (int i = 0; i < rotated.size(); ++i) {
-        for (int j = 0; j < rotated[i].size(); ++j) {
-            cout << rotated[i][j] << " ";
-        }
-        cout << endl;
-    }
+    cout << "Number of palindromic paths: " << result << endl;
 
     return 0;
 }
