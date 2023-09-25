@@ -1,6 +1,7 @@
 #include<iostream>
 using namespace std;
 #include<vector>
+#include <algorithm>
 
 /*
 Rotate matrix elements clockwise
@@ -128,6 +129,48 @@ int maxOnes (vector <vector <int>> &Mat, int N, int M)
             return result;
             
         }
+/*
+Median in a row-wise sorted Matrix
+Given a row wise sorted matrix of size R*C where R and C are always odd, find the median of the matrix.
+*/
+
+int median(vector<vector<int>> &matrix, int R, int C){
+        // code here     
+       int min_ele=INT_MAX;
+       int max_ele=INT_MIN;
+       int desired_count=(1+(R*C))/2;
+       int mid=0,count=0;
+       
+       // Find the minimum and maximum elements in the matrix.
+       for(int i=0; i<R; ++i) {
+          
+          min_ele=min(min_ele,matrix[i][0]);
+          max_ele=max(max_ele,matrix[i][C-1]);
+       }
+       
+       // Perform binary search between min_ele and max_ele to find the median.
+       while(min_ele < max_ele) {
+           
+           mid=(min_ele+max_ele)/2;
+           count=0;
+           
+           // Count how many elements in the matrix are less than or equal to mid
+           for(int i=0; i<R; ++i) {
+               
+               count+=upper_bound(matrix[i].begin(),matrix[i].end(),mid)-matrix[i].begin();
+           }
+           
+           if(count<desired_count) 
+                min_ele=mid+1;
+           else
+                max_ele=mid;
+           
+           
+       }
+       
+       return min_ele;
+    }
+
 
 int main() {
     // Test Case 1
