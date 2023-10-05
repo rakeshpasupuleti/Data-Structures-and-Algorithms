@@ -441,7 +441,35 @@ Note: Return -1 if a valid assignment is not possible, and allotment should be i
         }
         
     }
-
+/*
+Find the element that appears once in sorted array.
+Given a sorted array arr[] of size N. Find the element that appears only once in the array.
+All other elements appear exactly twice. 
+*/
+int search(int arr[],int low, int high) {
+        
+        int mid;
+        while(low<=high) {
+            
+            if(low==high)   return arr[low];
+            
+            mid=(low+high)/2;
+            
+            if(mid%2==0) {
+                if(arr[mid]==arr[mid+1])   
+                    low=mid+2;
+                else
+                    high=mid;
+            }
+            else {
+                if(arr[mid]==arr[mid-1])
+                    low=mid+1;
+                else
+                    high=mid-1;
+            }
+        }
+    }
+    
 int main() {
 
     return 0;
