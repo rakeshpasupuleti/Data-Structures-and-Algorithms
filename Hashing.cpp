@@ -149,8 +149,142 @@ vector<int> common_element(vector<int>v1,vector<int>v2)
         return result;
     }
 
+/*
+Find All Four Sum Numbers
+Given an array A of integers and another number K. 
+Find all the unique quadruple from the given array that sums up to K.
+Also note that all the quadruples which you return should be internally sorted, 
+ie for any quadruple [q1, q2, q3, q4] the following should follow: q1 <= q2 <= q3 <= q4.
+*/
+vector<vector<int>> fourSum(vector<int> &arr, int k) {
+    sort(arr.begin(), arr.end());
+
+    vector<vector<int>> result;
+    int n = arr.size();
+
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            int target = k - (arr[i] + arr[j]);
+            int left = j + 1;
+            int right = n - 1;
+
+            while (left < right) {
+                int sum = arr[left] + arr[right];
+
+                if (sum == target) {
+                    result.push_back({arr[i], arr[j], arr[left], arr[right]});
+
+                    // Move the left pointer to the right to skip duplicates
+                    while (left < right && arr[left] == arr[left + 1]) {
+                        left++;
+                    }
+
+                    // Move the right pointer to the left to skip duplicates
+                    while (left < right && arr[right] == arr[right - 1]) {
+                        right--;
+                    }
+
+                    left++;
+                    right--;
+                } else if (sum < target) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+
+            while (j < n - 1 && arr[j] == arr[j + 1]) {
+                j++;
+            }
+        }
+
+        while (i < n - 1 && arr[i] == arr[i + 1]) {
+            i++;
+        }
+    }
+
+    return result;
+}
+
+/*
+Count distinct elements in every window
+Given an array of integers and a number K. 
+Find the count of distinct elements in every window of size K in the array.
+*/
+
+vector<int> countDistinct(int A[], int n, int k) {
+    
+    unordered_map<int, int> umap;
+    vector<int> result;
+   
+    int dist_count = 0;
+
+    for (int i = 0; i < k; ++i) {
+        // If the element A[i] is not found in the map, it's distinct. Increment dist_count.
+        if (umap.find(A[i]) == umap.end())
+            ++dist_count;
+        
+        ++umap[A[i]];
+    }
 
     
+    result.push_back(dist_count);
+
+    // Slide the window and process the rest of the array.
+    for (int win_end = k; win_end < n; ++win_end) {
+        int win_start = win_end - k; // Calculate the start of the sliding window.
+
+        // If the element leaving the window occurs only once, decrement dist_count.
+        if (umap[A[win_start]] == 1)
+            --dist_count;
+        // Decrement the frequency of the element that's leaving the window.
+        --umap[A[win_start]];
+
+        // If the new element entering the window is not already in the map, it's distinct. Increment dist_count.
+        if (umap[A[win_end]] == 0)
+            ++dist_count;
+        // Increment the frequency of the element that's entering the window.
+        ++umap[A[win_end]];
+
+        // Add the count of distinct elements in the current window to the result vector.
+        result.push_back(dist_count);
+    }
+
+    
+    return result;
+}
+
+/*
+Array Pair Sum Divisibility Problem
+Given an array of integers and a number k.
+write a function that returns true if given array can be divided into pairs,
+such that sum of every pair is divisible by k.
+*/
+ bool canPair(vector<int> nums, int k) {
+    int freq[k] = {0};  
+
+    for (auto ele : nums) {
+         // Count the frequency of remainders when divided by 'k'.
+        freq[ele % k]++; 
+    }
+
+    if (freq[0] % 2 == 1) {
+        // If there are an odd number of elements with a remainder of 0, it's impossible to pair them.
+        return false;
+    }
+
+    for (int i = 1; i < (k / 2) + 1; i++) {
+        // Loop through the remaining remainders from 1 to k/2 and check for pairs.
+        // If there's a remainder 'i', there should be an equal number of elements with remainder 'k - i'.
+        if (freq[i] != freq[k - i]) {
+            return false;
+        }
+    }
+
+    return true;  // All elements can be paired as per the given conditions.
+}
+
+
 
 int main() {
 
