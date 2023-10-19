@@ -284,10 +284,45 @@ such that sum of every pair is divisible by k.
     return true;  // All elements can be paired as per the given conditions.
 }
 
+/*
+Longest consecutive subsequence
+Given an array of positive integers. 
+Find the length of the longest sub-sequence such that elements in the subsequence are consecutive integers.
+The consecutive numbers can be in any order.
+*/
 
+int findLongestConseqSubseq(int arr[], int N)
+{
+    unordered_map<int, int> umap;
+
+    //  Store all array elements in the unordered_map
+    for (int i = 0; i < N; ++i)
+        umap[arr[i]] = 1;
+
+    int seq_len = INT_MIN; 
+    int temp_len = 0;
+    
+    for (int i = 0; i < N; ++i) {
+        // Check if the current element is the start of a sequence
+        if (umap.find(arr[i] - 1) == umap.end()) {
+            temp_len = 1;
+            int temp_var = arr[i] + 1;
+            while (umap.find(temp_var) != umap.end()) {
+                temp_len++;
+                temp_var++;
+            }
+            seq_len = max(temp_len, seq_len);
+        }
+    }
+
+    return seq_len;
+}
 
 int main() {
-
+    int arr[]={2,6,1,9,4,5,3};
+    int N=7;
+    int result=findLongestConseqSubseq(arr,N);
+    cout<<"The out put is :"<<result<<endl;
     return 0;
 }
 
