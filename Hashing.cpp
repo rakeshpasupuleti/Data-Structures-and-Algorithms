@@ -317,7 +317,70 @@ int findLongestConseqSubseq(int arr[], int N)
 
     return seq_len;
 }
+/*
+Array Subset of another array
+Given two arrays: a1[0..n-1] of size n and a2[0..m-1] of size m.
+Task is to check whether a2[] is a subset of a1[] or not.
+Both the arrays can be sorted or unsorted. There can be duplicate elements.
+*/
+string isSubset(int a1[], int a2[], int n, int m) {
+    // Check if array a2 is larger than array a1
+    if (m > n) {
+        return "No"; // If a2 is larger, it can't be a subset of a1
+    }
 
+    // Create an unordered map to count the occurrences of elements in a1
+    unordered_map<int, int> umap;
+
+    // Count the occurrences of each element in array a1
+    for (int i = 0; i < n; ++i) {
+        umap[a1[i]]++;
+    }
+
+    // Iterate through elements in a2 and check if they are present in a1 in sufficient quantities
+    for (int i = 0; i < m; ++i) {
+        if (--umap[a2[i]] < 0) {
+            return "No"; // If a2 contains an element not present in a1, return "No"
+        }
+    }
+
+    return "Yes"; // If all elements in a2 are found in a1, return "Yes"
+}
+/*
+Zero Sum Subarrays
+You are given an array arr[] of size n. 
+Find the total count of sub-arrays having their sum equal to 0.
+*/
+long long int findSubarray(vector<long long int> &arr, int n ) {
+    
+    long long int count = 0;
+    long long int curr_sum = 0;
+    
+   
+    unordered_map<long long int, long long int> umap;
+    
+    
+    for(int i = 0; i < n; ++i) {
+        
+        curr_sum += arr[i];
+        
+        // If the current sum is 0, increment the count as we've found a subarray with a sum of 0
+        if(curr_sum == 0) {
+            ++count;
+        }
+        
+        // If the current sum has been seen before, update the count by the frequency of that sum
+        if(umap.find(curr_sum) != umap.end()) {
+            count += umap[curr_sum];
+        }
+        
+        // Increment the frequency of the current sum in the map
+        umap[curr_sum]++;
+    }
+    
+    
+    return count;
+}
 int main() {
     int arr[]={2,6,1,9,4,5,3};
     int N=7;
