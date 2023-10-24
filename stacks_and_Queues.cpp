@@ -405,6 +405,205 @@ string FirstNonRepeating(string A) {
     // Return the final result containing the first non-repeating characters.
     return result;
 }
+/*
+Rotten Oranges
+Given a grid of dimension nxm where each cell in the grid can have values 0, 1 or 2 which has the following meaning:
+0 : Empty cell
+1 : Cells have fresh oranges
+2 : Cells have rotten oranges
+
+We have to determine what is the earliest time after which all the oranges are rotten. 
+A rotten orange at index [i,j] can rot other fresh orange at indexes [i-1,j], [i+1,j], [i,j-1], [i,j+1] (up, down, left and right) in unit time. 
+
+*/
+
+// Function to check if a given (row, col) position is within the grid bounds.
+bool check_inbounds(int row, int col, int n, int m) {
+    if (row < 0 || row >= n || col < 0 || col >= m)
+        return false;
+    return true;
+}
+
+// Main function to find the minimum time for all oranges to rot.
+int orangesRotting(vector<vector<int>>& grid) {
+    int n = grid.size();     // Number of rows in the grid.
+    int m = grid[0].size();  // Number of columns in the grid.
+    int time_to_rotten = 0;  // Time taken for all oranges to rot.
+    int to_be_rotten = 0;    // Count of oranges that need to be rotten.
+
+    queue<pair<int, int>> q;  // Queue to perform BFS traversal.
+
+    // Direction vectors for moving in four directions: up, down, left, and right.
+    vector<int> dx = {0, 0, 1, -1};
+    vector<int> dy = {1, -1, 0, 0};
+
+    // Loop through the grid to count fresh and rotten oranges and initialize the queue.
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == 1)
+                to_be_rotten++;
+            if (grid[i][j] == 2)
+                q.push({i, j});
+        }
+    }
+
+    // While there are fresh oranges and the queue is not empty, perform BFS.
+    while (to_be_rotten > 0 && !q.empty()) {
+        int len = q.size();  // Number of oranges in the current time step.
+        for (int i = 0; i < len; ++i) {
+            pair<int, int> temp = q.front();
+            q.pop();
+
+            // Check each of the four adjacent cells for fresh oranges.
+            for (int d = 0; d < 4; ++d) {
+                int newRow = temp.first + dx[d];
+                int newCol = temp.second + dy[d];
+
+                // Check if the new position is in bounds and contains a fresh orange.
+                if (check_inbounds(newRow, newCol, n, m) && grid[newRow][newCol] == 1) {
+                    --to_be_rotten;       // Decrease the count of fresh oranges.
+                    grid[newRow][newCol] = 2;  // Mark the orange as rotten.
+                    q.push({newRow, newCol});  // Add the rotten orange to the queue for the next round.
+                }
+            }
+        }
+        ++time_to_rotten;  // Increment the time step.
+    }
+
+    if (to_be_rotten > 0)
+        return -1;          // Some oranges cannot rot (grid disconnected).
+    else
+        return time_to_rotten;  // Return the time taken for all oranges to rot.
+}
+
+/*
+Maximum of all subarrays of size k
+Given an array arr[] of size N and an integer K. 
+Find the maximum for each and every contiguous subarray of size K.
+*/
+vector<int> max_of_subarrays(int *arr, int n, int k) {
+    deque<int> dq;      // Initialize a deque to store indices of elements in the current subarray.
+    vector<int> result; // Initialize a vector to store the maximum values of subarrays.
+
+    // Process the first subarray of size k.
+    for (int i = 0; i < k; ++i) {
+        // Remove elements from the back of the deque if they are less than or equal to the current element.
+        while (!dq.empty() && arr[dq.back()] <= arr[i])
+            dq.pop_back();
+
+        // Append the index of the current element to the back of the deque.
+        dq.push_back(i);
+    }
+
+    // Add the maximum element of the first subarray to the result.
+    result.push_back(arr[dq.front()]);
+
+    // Process subsequent subarrays of size k.
+    for (int i = k; i < n; ++i) {
+        // Remove elements from the front of the deque if they are outside the current subarray.
+        while (!dq.empty() && dq.front() < i - k + 1)
+            dq.pop_front();
+
+        // Remove elements from the back of the deque if they are less than or equal to the current element.
+        while (!dq.empty() && arr[dq.back()] <= arr[i])
+            dq.pop_back();
+
+        // Append the index of the current element to the back of the deque.
+        dq.push_back(i);
+
+        // Add the maximum element of the current subarray to the result.
+        result.push_back(arr[dq.front()]);
+    }
+
+    return result;
+}
+
+/*
+Maximum Rectangular Area in a Histogram
+Find the largest rectangular area possible in a given histogram where the largest rectangle can be made of a number of contiguous bars. 
+For simplicity, assume that all bars have the same width and the width is 1 unit, there will be N bars height of each bar will be given by the array arr.
+*/
+//Function to find largest rectangular area possible in a given histogram.
+long long getMaxArea(long long arr[], int n)
+{
+    // Initialize a stack to keep track of indices of elements in the array.
+    stack<int> s;
+    
+    // Create two vectors to store the indices of the nearest smaller elements on the left and right.
+    vector<int> right;  // For the right side.
+    vector<int> left;   // For the left side.
+    
+    // Initialize the left vector with -1 for the first element as there is no smaller element on the left.
+    left.push_back(-1);
+    
+    // Push the index of the first element onto the stack.
+    s.push(0);
+    
+    // Calculate the nearest smaller element on the left for each element.
+    for(int i=1; i < n; i++)
+    {
+        // Pop elements from the stack until we find a smaller element or the stack is empty.
+        while(!s.empty() && arr[s.top()] >= arr[i])
+            s.pop();
+        
+        // If the stack is empty, there's no smaller element on the left, so add -1.
+        if(s.empty())
+            left.push_back(-1);
+        else
+            // Otherwise, add the index of the nearest smaller element.
+            left.push_back(s.top());
+            
+        // Push the current element's index onto the stack.
+        s.push(i);
+    }
+    
+    // Clear the stack for the next iteration.
+    while(!s.empty())
+        s.pop();
+    
+    // Initialize the right vector with 'n' for the last element as there is no smaller element on the right.
+    right.push_back(n);
+    
+    // Push the index of the last element onto the stack.
+    s.push(n);
+    
+    // Calculate the nearest smaller element on the right for each element.
+    for(int i = n - 1; i >= 0; i--)
+    {
+        // Pop elements from the stack until we find a smaller element or the stack is empty.
+        while(!s.empty() && arr[s.top()] >= arr[i])
+            s.pop();
+        
+        // If the stack is empty, there's no smaller element on the right, so add 'n'.
+        if(s.empty())
+            right.push_back(n);
+        else
+            // Otherwise, add the index of the nearest smaller element.
+            right.push_back(s.top());
+            
+        // Push the current element's index onto the stack.
+        s.push(i);
+    }
+    
+    // Reverse the 'right' vector to make it correct for the final calculation.
+    reverse(right.begin(), right.end());
+    
+    // Initialize variables for tracking the maximum area and a temporary area calculation.
+    long long max_area = 0, temp;
+    
+    // Calculate the area for each element and find the maximum area.
+    for(int i = 0; i < n; ++i)
+    {
+        temp = arr[i] * (right[i] - left[i] - 1);
+        
+        // Update the maximum area if the current area is larger.
+        if(temp > max_area)
+            max_area = temp;
+    }
+    
+    // Return the maximum area found.
+    return max_area;
+}
 
 int main(){
     return 0;
