@@ -529,3 +529,100 @@ vector<int> bottomView(Node *root) {
     }
     */
 }
+
+/*
+Vertical Traversal of Binary Tree
+Given a Binary Tree, find the vertical traversal of it starting from the leftmost level to the rightmost level.
+If there are multiple nodes passing through a vertical line, then they should be printed as they appear in level order traversal of the tree.
+*/
+vector<int> verticalOrder(Node *root)
+{
+    // Create an unordered map to store nodes at each horizontal distance.
+    unordered_map<int, vector<int>> umap;
+    // Initialize the result vector to store the vertical order.
+    vector<int> result;
+    // Create a queue to perform level order traversal.
+    queue<pair<Node *, int>> q;
+    // Initialize variables to keep track of the maximum and minimum horizontal distances.
+    int max_h_dist = INT_MIN;
+    int min_h_dist = INT_MAX;
+
+    // Check if the root is NULL, and return an empty result if it is.
+    if (root == NULL)
+        return result;
+    
+    // Push the root node with a horizontal distance of 0 into the queue.
+    q.push({root, 0});
+
+    // Perform level order traversal.
+    while (!q.empty()) {
+        // Get the front element from the queue.
+        pair<Node *, int> temp = q.front();
+        q.pop();
+        Node *node = temp.first;  // Extract the node from the pair.
+        int h_dist = temp.second;  // Extract the horizontal distance from the pair.
+
+        // Update the maximum and minimum horizontal distances encountered so far.
+        max_h_dist = max(max_h_dist, h_dist);
+        min_h_dist = min(min_h_dist, h_dist);
+
+        // Store the node's data in the map at its horizontal distance.
+        umap[h_dist].push_back(node->data);
+
+        // If there is a left child, enqueue it with a decremented horizontal distance.
+        if (node->left != NULL)
+            q.push({node->left, h_dist - 1});
+
+        // If there is a right child, enqueue it with an incremented horizontal distance.
+        if (node->right != NULL)
+            q.push({node->right, h_dist + 1});
+    }
+
+    // Traverse the map from the minimum horizontal distance to the maximum,
+    // and add the nodes to the result vector in vertical order.
+    for (int i = min_h_dist; i <= max_h_dist; ++i) {
+        for (auto x : umap[i])
+            result.push_back(x);
+    }
+
+    // Return the vector containing nodes in vertical order.
+    return result;
+}
+
+
+/*
+Diameter of a Binary Tree
+The diameter of a tree (sometimes called the width) is the number of nodes on the longest path between two end nodes. 
+The diagram below shows two trees each with diameter nine, the leaves that form the ends of the longest path are shaded (note that there is more than one path in each tree of length nine, but no path longer than nine nodes). 
+*/
+
+int find_diameter(Node *root, int &max_diameter) {
+    // Base case: If the current node is NULL, return 0.
+    if (root == NULL)
+        return 0;
+    
+    // Recursively calculate the height of the left and right subtrees.
+    int left_height = find_diameter(root->left, max_diameter);
+    int right_height = find_diameter(root->right, max_diameter);
+    
+    // Update the max_diameter with the maximum of the current max_diameter,
+    // and the sum of left_height, right_height, and 1 (for the current node).
+    max_diameter = max(max_diameter, left_height + right_height + 1);
+    
+    // Return the maximum height of the left and right subtrees + 1 for the current node.
+    return max(left_height, right_height) + 1;
+}
+
+int diameter(Node* root) {
+    int max_diameter = 0;
+    
+    // Handle the case where the root is NULL.
+    if (root == NULL)
+        return max_diameter;
+    
+    // Call the recursive function to find the diameter.
+    find_diameter(root, max_diameter);
+    
+    // Return the maximum diameter found.
+    return max_diameter;
+}
