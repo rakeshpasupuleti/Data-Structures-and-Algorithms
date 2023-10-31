@@ -626,3 +626,427 @@ int diameter(Node* root) {
     // Return the maximum diameter found.
     return max_diameter;
 }
+
+/*
+Level order traversal in spiral form
+Given a binary tree and the task is to find the spiral order traversal of the tree.
+
+Spiral order Traversal mean: Starting from level 0 for root node, for all the even levels we print the node's value from right to left and for all the odd levels we print the node's value from left to right. 
+*/
+vector<int> findSpiral(Node *root)
+{
+    // Initialize the result vector to store the spiral order traversal.
+    vector<int> result;
+    int level = 0;  // Initialize the level indicator.
+
+    // Check if the root is NULL, and return an empty result if it is.
+    if (root == NULL)
+        return result;
+
+    // Create a queue for level order traversal and enqueue the root.
+    queue<Node *> q;
+    q.push(root);
+
+    // Perform level order traversal with a spiral order twist.
+    while (!q.empty()) {
+        vector<int> sub_result;  // Create a vector to store nodes at the current level.
+        int len = q.size();  // Get the number of nodes at the current level.
+        ++level;  // Increment the level.
+
+        // Process nodes at the current level.
+        for (int i = 0; i < len; ++i) {
+            Node *temp = q.front();  // Get the front node from the queue.
+            q.pop();
+
+            sub_result.push_back(temp->data);  // Add the node's data to sub_result.
+
+            // Enqueue the left and right children if they exist.
+            if (temp->left != NULL)
+                q.push(temp->left);
+            if (temp->right != NULL)
+                q.push(temp->right);
+        }
+
+        // Reverse the sub_result vector if the level is odd (for the spiral effect).
+        if (level % 2 != 0)
+            reverse(sub_result.begin(), sub_result.end());
+
+        // Add nodes from sub_result to the final result vector.
+        for (auto x : sub_result)
+            result.push_back(x);
+    }
+
+    // Return the result vector containing nodes in spiral order.
+    return result;
+
+    
+   
+}
+
+/*
+Recursive method for Level order traversal in spiral form
+*/
+
+// Recursive function to traverse the binary tree in a spiral order and store the nodes in a map.
+void find_spiral_order(Node *root, unordered_map<int, vector<int>> &umap, int height, int &max_height) {
+    
+    max_height = max(max_height, height);  // Update the maximum height encountered so far.
+    umap[height].push_back(root->data);    // Store the node's data in the corresponding level of the map.
+    
+    if (root->left != NULL) 
+        find_spiral_order(root->left, umap, height + 1, max_height);  // Recursively traverse the left subtree.
+    
+    if (root->right != NULL)
+        find_spiral_order(root->right, umap, height + 1, max_height);  // Recursively traverse the right subtree.
+}
+
+// Function to return a list containing the level order traversal in spiral form.
+vector<int> findSpiral(Node *root) {
+   unordered_map<int, vector<int>> umap;  // Create a map to store nodes at different levels.
+   vector<int> result;  // Initialize the result vector to store the spiral order traversal.
+   int max_height = 0;  // Initialize the maximum height.
+
+   if (root == NULL)
+    return result;  // If the root is NULL, return an empty result.
+
+   // Call the recursive function to traverse the tree and populate the map and update max_height.
+   find_spiral_order(root, umap, 1, max_height);
+   
+   for (int i = 1; i <= max_height; ++i) {
+        if (i % 2 != 0) {
+            // Insert elements in reverse order when the level is odd (spiral effect).
+            for (int j = umap[i].size() - 1; j >= 0; --j)
+                result.push_back(umap[i][j]);
+        } else {
+            // Insert elements in regular order when the level is even.
+            for (auto x : umap[i])
+                result.push_back(x);
+        }
+    }
+    
+    return result;  // Return the result vector containing nodes in spiral order.
+}
+
+
+/*
+ Level order traversal in spiral form Using Stacks
+*/
+// Function to return a list containing the level order traversal in a spiral form.
+vector<int> findSpiral(Node *root)
+{
+    vector<int> result;  // Initialize the result vector to store the spiral order traversal.
+    int level = 0;  // Initialize a level counter.
+
+    if (root == NULL)
+        return result;  // If the root is NULL, return an empty result.
+
+    stack<Node *> s1;  // Create two stacks, s1 and s2, for alternating levels.
+    stack<Node *> s2;
+    
+    s1.push(root);  // Push the root node onto s1 to start the traversal.
+
+    // Continue the traversal as long as either stack s1 or s2 is not empty.
+    while (!s1.empty() || !s2.empty()) {
+        
+        // Traverse nodes on the current level from left to right.
+        while (!s1.empty()) {
+            Node *temp = s1.top();  // Get the top node from stack s1.
+            s1.pop();  // Pop the node from stack s1.
+            result.push_back(temp->data);  // Add the node's data to the result vector.
+
+            // Push the right child onto stack s2 (if it exists) before the left child.
+            if (temp->right != NULL)
+                s2.push(temp->right);
+            if (temp->left != NULL)
+                s2.push(temp->left);
+        }
+        
+        // Traverse nodes on the current level from right to left.
+        while (!s2.empty()) {
+            Node *temp = s2.top();  // Get the top node from stack s2.
+            s2.pop();  // Pop the node from stack s2.
+            result.push_back(temp->data);  // Add the node's data to the result vector.
+
+            // Push the left child onto stack s1 (if it exists) before the right child.
+            if (temp->left != NULL)
+                s1.push(temp->left);
+            if (temp->right != NULL)
+                s1.push(temp->right);
+        }
+    }
+    
+    return result;  // Return the result vector containing nodes in spiral order.
+}
+
+/*
+Connect Nodes at Same Level
+Given a binary tree, connect the nodes that are at same level. 
+You'll be given an addition nextRight pointer for the same.
+
+Initially, all the nextRight pointers point to garbage values.
+ Your function should set these pointers to point next right for each node.
+*/
+
+/* struct Node
+{
+  int data;
+  Node *left,  *right;
+  Node *nextRight;  // This has garbage value in input trees
+};
+
+void connect(Node *root)
+{
+    // Function to connect nodes at the same level in a binary tree
+    if (root == NULL)
+        return;  // If the root is NULL, there's nothing to connect
+
+    queue<Node *> q;  // Create a queue for level order traversal
+    q.push(root);     // Enqueue the root node
+    Node *prev = NULL; // Initialize a pointer to the previous node
+
+    while (!q.empty()) {
+        int len = q.size(); // Get the number of nodes at the current level
+        for (int i = 0; i < len; ++i) {
+            Node *temp = q.front(); // Get the front node from the queue
+            q.pop();
+
+            // Enqueue the left and right children if they exist
+            if (temp->left != NULL)
+                q.push(temp->left);
+            if (temp->right != NULL)
+                q.push(temp->right);
+
+            if (i != 0)
+                prev->nextRight = temp; // Connect the previous node's nextRight pointer to the current node
+
+            prev = temp; // Update the previous node pointer for the next iteration
+        }
+
+        prev->nextRight = NULL; // Set the nextRight pointer of the last node in the current level to NULL
+    }
+}
+*/
+
+
+/*
+Binary Tree to DLL
+Given a Binary Tree (BT), convert it to a Doubly Linked List(DLL) In-Place. 
+The left and right pointers in nodes are to be used as previous and next pointers respectively in converted DLL. 
+The order of nodes in DLL must be same as Inorder of the given Binary Tree. The first node of Inorder traversal (leftmost node in BT) must be the head node of the DLL.
+
+Note: H is the height of the tree and this space is used implicitly for the recursion stack.
+*/
+
+//Iterative  Method
+
+void inorder(Node *node,vector<int> &result) {
+        if(node==NULL) return;
+        inorder(node->left,result);
+        result.push_back(node->data);
+        inorder(node->right,result);
+        
+    }
+    Node * bToDLL(Node *root)
+    {
+        // your code here
+        if(root==NULL ) return root;
+        
+        vector<int> result;
+        inorder(root,result);
+       
+        int size=result.size();
+        Node *prev=new Node(result[0]);
+        Node *start=prev;
+        Node *curr=prev;
+        for(int i=1;i<size; ++i) {
+            
+            curr=new Node(result[i]);
+            prev->right=curr;
+            curr->left=prev;
+            prev=curr;
+        }
+        
+        curr->right=NULL;
+        
+        
+        return start;
+    
+    }
+
+//Recursive Method
+class Solution
+{
+    public: 
+    //Function to convert binary tree to doubly linked list and return it.
+   
+ Node *prev = NULL; // Declaration of prev
+
+Node *bToDLL(Node *root)
+{
+    // Base case: If the current node is NULL, return NULL.
+    if (root == NULL)
+        return root;
+
+    // Recursively convert the left subtree to a doubly linked list,
+    // and store the head of the left list in 'head'.
+    Node *head = bToDLL(root->left);
+
+    // If 'prev' is not NULL, it means we've already processed a node.
+    if (prev != NULL)
+    {
+        // Link the current node's left to the previous node.
+        root->left = prev;
+
+        // Link the previous node's right to the current node.
+        prev->right = root;
+    }
+    else
+    {
+        // If 'prev' is NULL, it means this is the first node we're processing,
+        // so update 'head' to be the current node.
+        head = root;
+    }
+
+    // Update 'prev' to the current node for the next iteration.
+    prev = root;
+
+    // Recursively convert the right subtree to a doubly linked list.
+
+    bToDLL(root->right);
+
+    // Return the head of the doubly linked list.
+    return head;
+}
+
+
+};
+
+
+
+/*
+Maximum Path Sum between 2 Special Nodes
+Given a binary tree in which each node element contains a number.
+ Find the maximum possible path sum from one special node to another special node.
+
+Note: Here special node is a node which is connected to exactly one different node.
+*/
+
+int maxPath(Node* root, int &maxi){
+        if(root==NULL)
+        return 0;
+        
+        if(root->left==NULL and root->right==NULL){
+            return root->data;
+        }
+        
+        int left=maxPath(root->left, maxi);
+        int right=maxPath(root->right, maxi);
+        
+        if(root->left and root->right){
+            maxi=max(maxi, left+right+root->data);
+            return max(left,right)+root->data;
+        }
+        
+        if (root->left){
+            return left+root->data;
+        }
+        return right+root->data;
+        
+    }
+    int maxPathSum(Node* root)
+    {
+        // code here
+        int maxi=INT_MIN;
+        int x = maxPath(root,maxi);
+        if(root->left and root->right){
+            return maxi;
+        }
+        
+        return max(maxi,x);
+        
+    }
+
+
+/* 
+Given a binary tree, find the maximum path sum. 
+The path may start and end at any node in the tree.
+
+*/
+int find_max_path(Node* root, int& result) {
+    if (root == NULL)
+        return 0;
+
+    int left_path = find_max_path(root->left, result);
+    int right_path = find_max_path(root->right, result);
+
+    int single_path = max(max(left_path, right_path) + root->data, root->data);
+    int max_path = max(single_path, left_path + right_path + root->data);
+
+    result = max(result, max_path);
+
+    return single_path;
+}
+
+int maxPathSum(Node* root) {
+    int result = INT_MIN;
+
+    find_max_path(root, result);
+
+    return result;
+}
+
+
+/*
+Serialize and Deserialize a Binary Tree
+Serialization is to store a tree in an array so that it can be later restored and Deserialization is reading tree back from the array. Now your task is to complete the function serialize which stores the tree into an array A[ ] and deSerialize which deserializes the array to the tree and returns it.
+Note: The structure of the tree must be maintained. Multiple nodes can have the same data.
+Note : NULL is denoted by -1.
+*/
+void serialize_preorder(Node *node, vector<int> &data) {
+        
+        if(node==NULL) {
+            data.push_back(INT_MIN);
+            return;
+        }
+        
+        data.push_back(node->data);
+        serialize_preorder(node->left,data);
+        serialize_preorder(node->right,data);
+    }
+    
+    
+    vector<int> serialize(Node *root) 
+    {
+        //Your code here
+        vector<int> data;
+        serialize_preorder(root,data);
+        return data;
+    }
+    
+    //Function to deserialize a list and construct the tree.
+    int index=0;
+    Node *deSerialize_preorder(vector<int> data) {
+        
+        if(data.size()==index) return NULL;
+        if(data[index]==INT_MIN) {
+            ++index;
+            return NULL;
+        }
+        
+        Node *root=new Node(data[index]);
+        ++index;
+        root->left=deSerialize_preorder(data);
+        root->right=deSerialize_preorder(data);
+        
+        return root;
+        
+    }
+    
+    Node * deSerialize(vector<int> &A)
+    {
+       //Your code here
+       
+       Node * root=deSerialize_preorder(A);
+       
+       return root;
+    }
