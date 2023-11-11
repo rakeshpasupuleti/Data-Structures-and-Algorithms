@@ -221,7 +221,168 @@ int longestSubsequence(int n, int a[])
     return max_len;
 }
 
+/*
+Longest Common Subsequence
+Given two strings, find the length of longest subsequence present in both of them. 
+Both the strings are in uppercase latin alphabets.
+*/
 
+int lcs(int n, int m, string s1, string s2) {
+    // Create a 2D array to store LCS lengths for different substrings of s1 and s2.
+    int lcs[n+1][m+1];
+
+    // Initialize the array with zeros.
+    for(int i=0; i<=n; ++i ) {
+        for(int j=0; j<=m; ++j) {
+            lcs[i][j]=0;
+        }
+    }
+
+    // Compute LCS lengths for all possible substrings of s1 and s2.
+    for(int i=1; i<=n; ++i) {
+        for(int j=1; j<=m; ++j) {
+            if(s1[i-1] == s2[j-1]) {
+                // If the characters at the current positions match, increment the LCS length.
+                lcs[i][j] = 1 + lcs[i-1][j-1];
+            } else {
+                // If the characters don't match, take the maximum LCS length from the previous positions.
+                lcs[i][j] = max(lcs[i][j-1], lcs[i-1][j]);
+            }
+        }
+    }
+
+    // The final element of the array contains the length of the LCS.
+    return lcs[n][m];
+}
+
+
+/*
+0 - 1 Knapsack Problem
+You are given weights and values of N items, put these items in a knapsack of capacity W to get the maximum total value in the knapsack.
+Note that we have only one quantity of each item.
+In other words, given two integer arrays val[0..N-1] and wt[0..N-1] which represent values and weights associated with N items respectively. 
+Also given an integer W which represents knapsack capacity, find out the maximum value subset of val[] such that sum of the weights of this subset is smaller than or equal to W. 
+You cannot break an item, either pick the complete item or dont pick it (0-1 property).
+*/
+
+// Recursive method
+int solveknapsack(int wt[], int val[], int W, int n, int index, int profit) {
+    // Base case: If we've considered all items, return the current profit.
+    if (index == n) {
+        return profit;
+    }
+    // Check if the weight of the current item is less than or equal to the remaining capacity.
+    if (wt[index] <= W) {
+        // Calculate the maximum profit by either including or excluding the current item.
+        // If included, subtract its weight and add its value to the profit.
+        int wt_included_prft = solveknapsack(wt, val, W - wt[index], n, index + 1, profit + val[index]);
+        // If not included, keep the same capacity and profit.
+        int wt_not_included_prft = solveknapsack(wt, val, W, n, index + 1, profit);
+        // Return the maximum profit of including or excluding the current item.
+        return max(profit, max(wt_included_prft, wt_not_included_prft));
+    } else {
+        // If the weight of the current item is more than the remaining capacity, skip it.
+        return solveknapsack(wt, val, W, n, index + 1, profit);
+    }
+}
+
+
+
+//Using Dynamic programming
+
+int knapSack(int maxCapacity, int weights[], int values[], int itemCount) {
+    // Create a 2D array 'bag' to store maximum values for different capacities and items.
+    vector<vector<int>> bag(itemCount + 1, vector<int>(maxCapacity + 1, 0));
+
+    // Iterate through items.
+    for (int itemIndex = 1; itemIndex <= itemCount; ++itemIndex) {
+        // Iterate through capacities.
+        for (int capacity = 1; capacity <= maxCapacity; ++capacity) {
+            // Check if the weight of the current item can fit into the current capacity.
+            if (capacity >= weights[itemIndex - 1]) {
+                // Calculate the maximum value by either including or excluding the current item.
+                // If included, add its value and consider the remaining capacity.
+                int includeCurrentValue = values[itemIndex - 1] + bag[itemIndex - 1][capacity - weights[itemIndex - 1]];
+                // If not included, keep the previous value for the same capacity.
+                int excludeCurrentValue = bag[itemIndex - 1][capacity];
+                // Store the maximum value in the 'bag' array.
+                bag[itemIndex][capacity] = max(includeCurrentValue, excludeCurrentValue);
+            } else {
+                // If the weight of the current item is too large for the capacity, exclude it.
+                bag[itemIndex][capacity] = bag[itemIndex - 1][capacity];
+            }
+        }
+    }
+
+    // The maximum value for the given capacity and items is stored in bag[itemCount][maxCapacity].
+    return bag[itemCount][maxCapacity];
+}
+
+
+/*
+
+*/
+//Recursive Approch
+
+int solvemaxsums(int arr[], int n, int prev_ele, int index, int result) {
+    // Base case: if we have processed all elements, return the current result.
+    if (index == n)
+        return result;
+    // Check if including the current element in the subsequence makes it strictly increasing.
+    else if (arr[index] > prev_ele) {
+        // Calculate the maximum sum by either including or excluding the current element.
+        // If included, update prev_ele to the current element and move to the next index.
+        int include_result = solvemaxsums(arr, n, arr[index], index + 1, (result + arr[index]));
+        // If not included, keep the previous result and move to the next index.
+        int excluded_result = solvemaxsums(arr, n, prev_ele, index + 1, result);
+
+        // Return the maximum sum among including, excluding, and the previous result.
+        return max(result, max(include_result, excluded_result));
+    } else
+        // If the current element cannot be included, move to the next index.
+        return solvemaxsums(arr, n, prev_ele, index + 1, result);
+}
+
+int maxSumIS(int arr[], int n) {
+    // Initialize the recursive function with the first index, INT_MIN as prev_ele, and 0 as result.
+    int result = solvemaxsums(arr, n, INT_MIN, 0, 0);
+    return result;
+}
+
+//Using Dynamic Programming
+
+int maxSumIS(int arr[], int n) {
+    
+    // Create an array to store the maximum sum of increasing subsequences ending at each index
+    int maxsubsums[n];
+    
+    // Initialize the result with the first element of the array
+    int result = arr[0];
+    
+    // Initialize the maximum sum array with the values of the input array
+    for(int i = 0; i < n; ++i)  {
+        maxsubsums[i] = arr[i];
+    }
+    
+    // Iterate over the array to find the maximum sum of increasing subsequences
+    for(int i = 1; i < n; ++i) {
+        for(int j = 0; j < i; ++j) {
+            
+            // Check if the current element is greater than the previous elements
+            if(arr[i] > arr[j]) {
+                
+                // Update the maximum sum ending at the current index
+                maxsubsums[i] = max(maxsubsums[i], arr[i] + maxsubsums[j]);
+            }
+        }
+        
+        // Update the overall result with the maximum sum ending at the current index
+        result = max(maxsubsums[i], result);
+    }
+    
+    // Return the final result, which represents the maximum sum of increasing subsequences
+    return result;
+}
 
 int main()
 {

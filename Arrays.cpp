@@ -6,6 +6,88 @@ using namespace std;
 #include <numeric>
 
 /*
+Print all the subarrays of an array.
+A subarray is  any contiguous part of a given array. 
+The subarray has the same sequence of elements (order of the elements) as it is in the array.
+*/
+void generateSubArrays(int arr[], int n) {
+    // Iterate through the starting index of subarrays
+    for (int i = 0; i < n; i++) {
+        // Iterate through the ending index of subarrays
+        for (int j = 0; j < n && (i + j) < n; j++) {
+            // Print the elements within the subarray
+            for (int k = j; k <= (i + j); ++k) {
+                cout << arr[k] << " ";
+            }
+            cout << endl; // Move to the next line for the next subarray
+        }
+    }
+}
+
+
+/*
+Print All the subsets of th array
+*/
+// This function calculates all subsets of the input vector 'A' and stores them in 'res'.
+// It uses recursion to generate subsets.
+void calcSubset(vector<int>& A, vector<vector<int> >& res, vector<int>& subset, int index)
+{
+    // Add the current 'subset' to the result 'res'.
+    res.push_back(subset);
+
+    // Iterate through the elements of 'A' starting from the given 'index'.
+    for (int i = index; i < A.size(); ++i) {
+        // Include the current element in the 'subset'.
+        subset.push_back(A[i]);
+
+        // Recursively generate subsets with the current element included.
+        calcSubset(A, res, subset, i + 1);
+
+        // Backtrack: Remove the current element to explore other possibilities.
+        subset.pop_back();
+    }
+}
+
+// This function generates all subsets of the input vector 'A'.
+vector<vector<int> > subsets(vector<int>& A)
+{
+    vector<int> subset;
+    vector<vector<int> > res;
+    int index = 0;
+    // Start the subset generation process.
+    calcSubset(A, res, subset, index);
+    return res;
+}
+
+/*
+Print all the subsequences of the array elements 
+*/
+void generateSubsequences(int arr[], int index, vector<int> subarray, int n) {
+   // Print the subsequences when we reach the end of recursion tree.
+   if (index == n) {
+      for (auto i : subarray)
+         cout << i << " ";
+
+      if (subarray.size() == 0)
+         cout << "[]";
+      cout << endl;
+      return;
+   }
+   else {
+      // adding the current index into the subsequence and calling the recursive function.
+      subarray.push_back(arr[index]);
+
+      generateSubsequences(arr, index + 1, subarray, n);
+
+      // removing the added index into the subsequence.
+      subarray.pop_back();
+
+      // not adding the current element into the subsequence.
+      generateSubsequences(arr, index + 1, subarray, n);
+   }
+}
+
+/*
 Leaders in an array
 Write a program to print all the LEADERS in the array. 
 An element is a leader if it is greater than all the elements to its right side. 
