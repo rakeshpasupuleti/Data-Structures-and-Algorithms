@@ -1,10 +1,9 @@
 #include <iostream>
-using namespace std;
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
 #include <numeric>
-
+using namespace std;
 /*
 Minimum number of Coins
 Given an infinite supply of each denomination of Indian currency { 1, 2, 5, 10, 20, 50, 100, 200, 500, 2000 } and a target value N.
@@ -917,9 +916,11 @@ int maxHeight(int height[], int width[], int length[], int n) {
 
 
 /*
+Maximize The Cut Segments
+Given an integer N denoting the Length of a line segment. You need to cut the line segment in such a way that the cut length of a line segment each time is either x , y or z. Here x, y, and z are integers.
+After performing all the cut operations, your total number of cut segments must be maximum.
 
-
-
+Note: if no segment can be cut then return 0.
 */
 //Using Recurssion
 int find_maxsegment_cut_recurssion(int n, int x, int y, int z) {
@@ -1021,6 +1022,475 @@ int maximizeTheCuts(int n, int x, int y, int z) {
     else
         return max_height[n];
 }
+
+/*
+Maximum path sum in matrix
+Given a NxN matrix of positive integers. There are only three possible moves from a cell Matrix[r][c].
+
+Matrix [r+1] [c]
+Matrix [r+1] [c-1]
+Matrix [r+1] [c+1]
+Starting from any column in row 0 return the largest sum of any of the paths up to row N-1.
+
+NOTE: We can start from any column in zeroth row and can end at any column in (N-1)th row.
+*/
+
+//Recursive method
+  // Recursive function to find the maximum path sum from the current cell to the bottom of the matrix
+int find_max_path_recursive(vector<vector<int>> Matrix, int N, int row, int col) {
+    // Base case: if we reach the last row, return the value in the current cell
+    if (row == N - 1)
+        return Matrix[row][col];
+
+    // Calculate the maximum path sum for the current cell by considering three possibilities:
+    // 1. Current cell + maximum path sum from the cell below (find_max_path_recursive(row+1, col))
+    // 2. Current cell + maximum path sum from the cell below and to the left (find_max_path_recursive(row+1, col-1))
+    // 3. Current cell + maximum path sum from the cell below and to the right (find_max_path_recursive(row+1, col+1))
+    int res1 = find_max_path_recursive(Matrix, N, row + 1, col) + Matrix[row][col];
+    int res2 = 0, res3 = 0;
+
+    if (col - 1 >= 0 && col - 1 < N)
+        res2 = find_max_path_recursive(Matrix, N, row + 1, col - 1) + Matrix[row][col];
+
+    if (col + 1 < N && col + 1 > 0)
+        res3 = find_max_path_recursive(Matrix, N, row + 1, col + 1) + Matrix[row][col];
+
+    // Return the maximum path sum among the three possibilities
+    return max({res1, res2, res3});
+}
+
+
+//Memoization
+// using memoization to avoid redundant computations
+int find_max_path_memo(vector<vector<int>> Matrix, int N, int row, int col, vector<vector<int>> &memo) {
+    // Base case: if we reach the last row, return 0
+    if (row == N)
+        return 0;
+
+    // If the result for the current cell has already been computed, return it
+    if (memo[row][col] != -1)
+        return memo[row][col];
+
+    // Calculate the maximum path sum for the current cell by considering three possibilities:
+    // 1. Current cell + maximum path sum from the cell below (find_max_path_memo(row+1, col, memo))
+    // 2. Current cell + maximum path sum from the cell below and to the left (find_max_path_memo(row+1, col-1, memo))
+    // 3. Current cell + maximum path sum from the cell below and to the right (find_max_path_memo(row+1, col+1, memo))
+    int res1 = find_max_path_memo(Matrix, N, row + 1, col, memo) + Matrix[row][col];
+    int res2 = 0, res3 = 0;
+
+    if (col - 1 >= 0 && col - 1 < N)
+        res2 = find_max_path_memo(Matrix, N, row + 1, col - 1, memo) + Matrix[row][col];
+
+    if (col + 1 < N && col + 1 > 0)
+        res3 = find_max_path_memo(Matrix, N, row + 1, col + 1, memo) + Matrix[row][col];
+
+    // Memoize the result for the current cell by storing the maximum of the three possibilities
+    memo[row][col] = max({res1, res2, res3});
+    
+    // Return the memoized result for the current cell
+    return memo[row][col];
+}
+
+// Function to find the maximum path sum in the matrix
+int maximumPath(int N, vector<vector<int>> Matrix) {
+    // Initialize the result to the minimum integer value
+    int result = INT_MIN;
+
+    // Create a memoization table with all values initialized to -1
+    vector<vector<int>> memo(N, vector<int>(N, -1));
+
+    // Iterate over each starting column in the first row and find the maximum path sum
+    for (int i = 0; i < N; ++i) {
+        int temp_result = find_max_path_memo(Matrix, N, 0, i, memo);
+        
+        // Update the overall result with the maximum path sum found so far
+        result = max(result, temp_result);
+    }
+
+    // Return the final result, representing the maximum path sum in the matrix
+    return result;
+}
+
+
+//Using Dynamic programming
+ int maximumPath(int N, vector<vector<int>> Matrix)
+{
+    // Initialize a 2D vector to store the maximum path values for each cell
+    vector<vector<int>> max_path(N, vector<int>(N, 0));
+
+    // Initialize the first row of max_path with values from the first row of the Matrix
+    for (int i = 0; i < N; ++i)
+        max_path[0][i] = Matrix[0][i];
+
+    // Iterate over each row starting from the second row
+    for (int row = 1; row < N; ++row)
+    {
+        // Iterate over each column in the current row
+        for (int col = 0; col < N; ++col)
+        {
+            // Update the max_path value for the current cell by considering three possibilities:
+            // 1. Current cell + value from the cell above (max_path[row-1][col])
+            // 2. Current cell + value from the cell above and to the left (max_path[row-1][col-1])
+            // 3. Current cell + value from the cell above and to the right (max_path[row-1][col+1])
+            max_path[row][col] = max(max_path[row][col], Matrix[row][col] + max_path[row - 1][col]);
+
+            if (col - 1 >= 0 && col - 1 < N)
+                max_path[row][col] = max(max_path[row][col], Matrix[row][col] + max_path[row - 1][col - 1]);
+
+            if (col + 1 < N && col + 1 > 0)
+                max_path[row][col] = max(max_path[row][col], Matrix[row][col] + max_path[row - 1][col + 1]);
+        }
+    }
+
+    // Find the maximum value in the last row of max_path, which represents the maximum path sum
+    int result = 0;
+    for (int i = 0; i < N; ++i)
+        result = max(result, max_path[N - 1][i]);
+
+    // Return the result, representing the maximum path sum in the matrix
+    return result;
+}
+
+
+
+/*
+Count number of hops
+A frog jumps either 1, 2, or 3 steps to go to the top. 
+In how many ways can it reach the top of Nth step. 
+As the answer will be large find the answer modulo 1000000007.
+
+*/
+//Using Recurssion
+// Recursive function to find the number of ways to reach step 'n'
+long long find_all_ways(int n) {
+    // Base case: there is one way to reach step 0, i.e., by not taking any step
+    if (n == 0)
+        return 1;
+
+    // If 'n' is negative, there are no ways to reach that step
+    if (n < 0)
+        return 0;
+
+    // Define the modulus value for the problem
+    int mod = 1000000007;
+
+    // Recursive calls to find the number of ways for each possible step size
+    long long way1 = find_all_ways(n - 1);
+    long long way2 = find_all_ways(n - 2);
+    long long way3 = find_all_ways(n - 3);
+
+    // Calculate the total number of ways for step 'n' and take the result modulo the specified value
+    return (way1 + way2 + way3) % mod;
+}
+
+
+//Using Memoization
+// Recursive function to find the number of ways to reach step 'n' with memoization
+long long find_all_ways_memo(int n, long long memo[]) {
+    // Base case: there is one way to reach step 0, i.e., by not taking any step
+    if (n == 0)
+        return 1;
+
+    // If 'n' is negative, there are no ways to reach that step
+    if (n < 0)
+        return 0;
+
+    // If the result for 'n' is already memoized, return it
+    if (memo[n] != -1)
+        return memo[n];
+
+    // Define the modulus value for the problem
+    int mod = 1000000007;
+
+    // Recursive calls to find the number of ways for each possible step size
+    long long way1 = find_all_ways_memo(n - 1, memo);
+    long long way2 = find_all_ways_memo(n - 2, memo);
+    long long way3 = find_all_ways_memo(n - 3, memo);
+
+    // Calculate the total number of ways for step 'n' and store it in the memoization array
+    memo[n] = (way1 + way2 + way3) % mod;
+    return memo[n];
+}
+
+// Function to count the total number of ways to reach step 'n'
+long long countWays(int n) {
+    // Create an array to store memoized results, initialized with -1
+    long long memo[n + 1];
+    fill(memo, memo + n + 1, -1);
+
+    // Call the recursive function with memoization and store the result
+    long long result = find_all_ways_memo(n, memo);
+
+    // Return the total number of ways to reach step 'n'
+    return result;
+}
+
+
+//Using Dynamic programming
+long long countWays(int n) {
+    // Define the modulus value for the problem
+    int mod = 1000000007;
+
+    // Create an array to store the number of ways to reach each step
+    long long nways[n + 1];
+    
+    // Initialize the array with zeros
+    fill(nways, nways + n + 1, 0);
+    
+    // There is one way to reach step 0, i.e., by not taking any step
+    nways[0] = 1;
+
+    // Iterate through each step from 1 to n
+    for (int i = 1; i <= n; ++i) {
+        // Initialize variables to store the number of ways for each step size
+        long long way1 = 0, way2 = 0, way3 = 0;
+
+        // Calculate the number of ways to reach the current step by taking one step
+        nways[i] += nways[i - 1];
+
+        // If the current step allows taking two steps, calculate the number of ways for two steps
+        if (i > 1)
+            nways[i] += nways[i - 2];
+
+        // If the current step allows taking three steps, calculate the number of ways for three steps
+        if (i > 2)
+            nways[i] += nways[i - 3];
+
+        // Take the result modulo the specified value to avoid overflow
+        nways[i] %= mod;
+    }
+
+    // Return the total number of ways to reach step n
+    return nways[n];
+}
+
+
+/*
+Minimum sum partition
+Given an array arr of size n containing non-negative integers, 
+the task is to divide it into two sets S1 and S2 such that the absolute difference between their sums is minimum and find the minimum difference.
+
+*/
+
+//using recurssion
+int find_min_diff_partition(int arr[], int idx, int total_sum, int sub_sum) {
+    // Base case: when all elements are considered (idx is -1),
+    // calculate and return the absolute difference between the current subset sum and the other subset sum
+    if (idx == -1) {
+        int other_sum = total_sum - sub_sum;
+        return abs(sub_sum - other_sum);
+    }
+
+    // Recursive calls for both exclusion and inclusion of the current element in the subset
+    // Return the minimum of the results obtained from these recursive calls
+    return min(
+        find_min_diff_partition(arr, idx - 1, total_sum, sub_sum),
+        find_min_diff_partition(arr, idx - 1, total_sum, sub_sum + arr[idx])
+    );
+}
+
+//Using Memoization
+int find_min_diff_partition_memo(int arr[], int idx, int total_sum, int sub_sum, vector<vector<int>> &memo) {
+    // Base case: when all elements are considered (idx is -1),
+    // calculate and return the absolute difference between the current subset sum and the other subset sum
+    if (idx == -1) {
+        int other_sum = total_sum - sub_sum;
+        return abs(sub_sum - other_sum);
+    }
+
+    // If the result for the current state is already memoized, return it
+    if (memo[idx][sub_sum] != -1)
+        return memo[idx][sub_sum];
+
+    // Memoize the result for the current state by recursively calling the function
+    // with both exclusion and inclusion of the current element in the subset
+    memo[idx][sub_sum] = min(
+        find_min_diff_partition_memo(arr, idx - 1, total_sum, sub_sum, memo),
+        find_min_diff_partition_memo(arr, idx - 1, total_sum, sub_sum + arr[idx], memo)
+    );
+
+    // Return the memoized result for the current state
+    return memo[idx][sub_sum];
+}
+
+// Function to find the minimum difference between two partitions using memoization
+int minDifference(int arr[], int n) {
+    // Calculate the total sum of the array elements
+    int total_sum = accumulate(arr, arr + n, 0);
+
+    // Initialize the subset sum to 0
+    int sub_sum = 0;
+
+    // Create a memoization table to store already computed results
+    vector<vector<int>> memo(n + 1, vector<int>(total_sum + 1, -1));
+
+    // Call the recursive function with memoization and store the result in 'result'
+    int result = find_min_diff_partition_memo(arr, n - 1, total_sum, sub_sum, memo);
+
+    // Return the minimum difference between two partitions
+    return result;
+}
+
+
+//Usind dynamic programming
+int minDifference(int arr[], int N) {
+    // Calculate the total sum of the array elements
+    int sum = accumulate(arr, arr + N, 0);
+
+    // Create a boolean vector dp to represent whether a particular sum is achievable
+    vector<bool> dp(sum + 1, false);
+    
+    // Initialize dp[0] as true, as it is always possible to achieve the sum of 0
+    dp[0] = true;
+    
+    // Iterate through each element in the array
+    for (int i = 0; i < N; ++i) {
+        // Iterate backward through the dp array to update achievable sums
+        for (int j = sum; j >= arr[i]; --j) {
+            // Update dp[j] to true if either dp[j] or dp[j - arr[i]] is true
+            dp[j] = dp[j] || dp[j - arr[i]];
+        }
+    }
+
+    // Initialize the minimum difference between two partitions as INT_MAX
+    int diff = INT_MAX;
+    
+    // Iterate through all possible sums up to 'sum'
+    for (int i = 0; i <= sum; ++i) {
+        // If the current sum is achievable
+        if (dp[i] == true)
+            // Update the minimum difference with the absolute difference between the total sum and twice the current sum
+            diff = min(diff, abs(sum - 2 * i));
+    }
+
+    // Return the minimum difference between two partitions
+    return diff;
+}
+
+
+/*
+Egg Dropping Puzzle
+You are given N identical eggs and you have access to a K-floored building from 1 to K.
+
+There exists a floor f where 0 <= f <= K such that any egg dropped from a floor higher than f will break, and any egg dropped from or below floor f will not break.
+There are few rules given below. 
+
+An egg that survives a fall can be used again.
+A broken egg must be discarded.
+The effect of a fall is the same for all eggs.
+If the egg doesn't break at a certain floor, it will not break at any floor below.
+If the eggs breaks at a certain floor, it will break at any floor above.
+Return the minimum number of moves that you need to determine with certainty what the value of f is.
+
+*/
+
+//Using Recurssion
+ // Recursive function to find the minimum moves without memoization
+int find_min_moves_recursively(int n, int k) {
+    // If there is only one egg or no floors, return the number of floors
+    if (k <= 1)
+        return k;
+
+    // If there is only one floor, or only one egg, return the number of floors
+    if (n == 1)
+        return k;
+
+    int min_val = INT_MAX, res;
+
+    // Loop through each floor to find the optimal solution
+    for (int f = 1; f <= k; ++f) {
+        // Calculate the result for the current move
+        res = max(find_min_moves_recursively(n - 1, f - 1), find_min_moves_recursively(n, k - f));
+        // Update the minimum value
+        min_val = min(res, min_val);
+    }
+
+    // Return the minimum moves plus one
+    return min_val + 1;
+}
+
+//Using Memoization
+ // Recursive function with memoization to find the minimum moves
+int find_min_moves_memo(int n, int k, vector<vector<int>> &memo) {
+    // If there is only one egg or no floors, return the number of floors
+    if (k <= 1)
+        return k;
+
+    // If there is only one floor, or only one egg, return the number of floors
+    if (n == 1)
+        return k;
+
+    // If the result for the current state is already calculated, return it
+    if (memo[n][k] != -1)
+        return memo[n][k];
+
+    int min_val = INT_MAX, res;
+
+    // Loop through each floor to find the optimal solution
+    for (int f = 1; f <= k; ++f) {
+        // Calculate the result for the current move
+        res = max(find_min_moves_memo(n - 1, f - 1, memo), find_min_moves_memo(n, k - f, memo));
+        // Update the minimum value
+        min_val = min(res, min_val);
+    }
+
+    // Save the result in the memoization table
+    memo[n][k] = min_val + 1;
+    return memo[n][k];
+}
+
+// Main function to calculate the minimum moves using memoization
+int eggDrop(int n, int k) {
+    // Initialize memoization table with -1
+    vector<vector<int>> memo(n + 1, vector<int>(k + 1, -1));
+
+    // Call the recursive function with memoization
+    int result = find_min_moves_memo(n, k, memo);
+
+    return result;
+}
+
+
+// Using Dynamic programming
+// Function to calculate the minimum number of moves for the egg drop problem
+int eggDrop(int n, int k) {
+    // Create a 2D vector to store the minimum moves for each subproblem
+    vector<vector<int>> eggfloor(n + 1, vector<int>(k + 1));
+    int sub_res = 0;
+
+    // Base cases: If there is only one egg, the number of moves is equal to the number of floors
+    // If there is only one floor, the number of moves is 1
+    for (int i = 1; i <= n; ++i) {
+        eggfloor[i][0] = 0;
+        eggfloor[i][1] = 1;
+    }
+
+    // If there is only one floor, the number of moves is equal to the number of floors
+    for (int j = 1; j <= k; ++j) {
+        eggfloor[1][j] = j;
+    }
+
+    // Dynamic programming approach to fill the remaining entries in the table
+    for (int i = 2; i <= n; ++i) {
+        for (int j = 2; j <= k; ++j) {
+            // Initialize the current entry with a large value
+            eggfloor[i][j] = INT_MAX;
+            
+            // Consider all possible floor levels for the current egg drop
+            for (int x = 1; x <= j; ++x) {
+                // Calculate the result for the current move
+                sub_res = 1 + max(eggfloor[i - 1][x - 1], eggfloor[i][j - x]);
+                
+                // Update the minimum moves for the current entry
+                eggfloor[i][j] = min(eggfloor[i][j], sub_res);
+            }
+        }
+    }
+
+    // The final result is stored in the bottom-right corner of the table
+    return eggfloor[n][k];
+}
+
 
 int main()
 {
