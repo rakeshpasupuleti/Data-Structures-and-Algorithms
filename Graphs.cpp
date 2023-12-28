@@ -247,7 +247,133 @@ bool isCyclic(int V, vector<int> adj[]) {
     return false;
 }
 
+/*
+Topological sort
+Given a Directed Acyclic Graph (DAG) with V vertices and E edges.
+Find any Topological Sorting of that Graph.
+*/
 
+
+
+vector<int> topoSort(int V, vector<int> adj[]) 
+{
+    // Initialize the result vector to store the topological ordering
+    vector<int> result;
+
+    // Vector to store the in-degrees of each vertex
+    vector<int> inedges(V, 0);
+
+    // Queue to store nodes with in-degree 0
+    queue<int> zeronode;
+
+    // Counter to keep track of the number of visited nodes
+    int Visited_nodes = 0;
+
+    // Calculate in-degrees for each node
+    for (int i = 0; i < V; ++i)
+        for (auto node : adj[i]) {
+            inedges[node]++;
+        }
+
+    // Push nodes with in-degree 0 into the queue
+    for (int i = 0; i < V; ++i)
+        if (inedges[i] == 0)
+            zeronode.push(i);
+
+    // Perform topological sorting using Kahn's algorithm
+    while (!zeronode.empty()) {
+        // Extract a node with in-degree 0 from the queue
+        auto temp = zeronode.front();
+        zeronode.pop();
+
+        // Add the node to the result vector
+        result.push_back(temp);
+
+        // Update in-degrees of adjacent nodes
+        for (auto node : adj[temp]) {
+            inedges[node]--;
+
+            // If in-degree becomes 0, push the node into the queue
+            if (inedges[node] == 0)
+                zeronode.push(node);
+
+            // Increment the counter for visited nodes
+            Visited_nodes++;
+        }
+    }
+
+    // Return the topologically sorted result
+    return result;
+}
+
+/*
+
+Find the number of islands
+
+Given a grid of size n*m (n is the number of rows and m is the number of columns in the grid) consisting of '0's (Water) and '1's(Land). Find the number of islands.
+
+Note: An island is either surrounded by water or boundary of grid and is formed by connecting adjacent lands horizontally or vertically or diagonally i.e., in all 8 directions.
+*/
+
+// Function to check if given row and column indices are within the valid dimensions of the grid
+bool isvalid_dimensions(vector<vector<char>>& grid, int row, int col) {
+    // Get the number of rows in the grid
+    int n = grid.size();
+    // Get the number of columns in the grid (assuming non-empty grid)
+    int m = grid[0].size();
+    
+    // Check if the indices are within bounds
+    return (row >= 0 && row < n && col >= 0 && col < m);
+}
+
+// Depth-First Search (DFS) function to explore and mark connected '1's in the grid
+void find_dfs(vector<vector<char>>& grid, int i, int j) {
+    // Offsets for the eight possible directions (up, down, left, right, and diagonals)
+    int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    
+    // Iterate over all eight directions
+    for(int dir = 0; dir < 8; dir++) {
+        // Calculate new row and column indices based on the current direction
+        int row = i + dx[dir];
+        int col = j + dy[dir];
+        
+        // Check if the new indices are within valid dimensions and the cell contains '1'
+        if (isvalid_dimensions(grid, row, col) && grid[row][col] == '1') {
+            // Mark the current cell as visited (change '1' to '0')
+            grid[row][col] = '0';
+            // Recursively explore the connected region
+            find_dfs(grid, row, col);
+        }
+    }
+}
+
+// Function to count the number of islands in the given 2D grid
+int numIslands(vector<vector<char>>& grid) {
+    // Initialize the count of islands
+    int islands_count = 0;
+    // Get the number of rows in the grid
+    int n = grid.size();
+    // Get the number of columns in the grid (assuming non-empty grid)
+    int m = grid[0].size();
+    
+    // Iterate over all cells in the grid
+    for(int i = 0; i < n; ++i) {
+        for(int j = 0; j < m; ++j) {
+            // If the current cell contains '1', increment the island count and explore the island
+            if (grid[i][j] == '1') {
+                islands_count++;
+                // Mark the current cell as visited (change '1' to '0')
+                grid[i][j] = '0';
+                // Explore the connected region using DFS
+                find_dfs(grid, i, j);
+            }
+        }
+    }
+    
+    // Return the total count of islands
+    return islands_count;
+}
 
 
 
