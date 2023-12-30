@@ -375,6 +375,101 @@ int numIslands(vector<vector<char>>& grid) {
     return islands_count;
 }
 
+/*
+
+Implementing Dijkstra Algorithm
+
+Given a weighted, undirected and connected graph of V vertices and an adjacency list adj where adj[i] is a list of lists containing two integers where the first integer of each list j denotes there is edge between i and j , second integers corresponds to the weight of that  edge . You are given the source vertex S and You to Find the shortest distance of all the vertex's from the source vertex S. 
+You have to return a list of integers denoting shortest distance between each node and Source vertex S.
+
+Note: The Graph doesn't contain any negative weight cycle.
+*/
+
+
+vector<int> dijkstra(int V, vector<vector<int>> adj[], int S)
+{
+    // Initialize a vector to store minimum distances from source to all nodes
+    vector<int> mindist(V, INT_MAX);
+    
+    // Set the distance from the source to itself as 0
+    mindist[S] = 0;
+
+    // Priority queue to store pairs of distance and node with min distance
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    
+    // Push the source node with distance 0 to the priority queue
+    pq.push({0, S});
+
+    // Dijkstra's algorithm
+    while (!pq.empty()) {
+        // Extract the node with the minimum distance from the priority queue
+        int dist = pq.top().first;
+        int node = pq.top().second;
+        pq.pop();
+
+        // Iterate through the adjacent nodes of the current node
+        for (auto it : adj[node]) {
+            int edgeWeight = it[1];  // Weight of the edge
+            int adjNode = it[0];     // Adjacent node
+
+            // Relaxation step: Update the distance if a shorter path is found
+            if (dist + edgeWeight < mindist[adjNode]) {
+                mindist[adjNode] = dist + edgeWeight;
+
+                // Push the updated distance and node to the priority queue
+                pq.push({mindist[adjNode], adjNode});
+            }
+        }
+    }
+
+    // Return the vector containing the minimum distances from the source
+    return mindist;
+}
+
+/*
+Minimum Swaps to Sort
+Given an array of n distinct elements. 
+Find the minimum number of swaps required to sort the array in strictly increasing order.
+
+*/
+
+int minSwaps(vector<int>& originalArray) {
+    int swapCount = 0;
+
+    unordered_map<int, int> elementIndexMap;
+
+    int arraySize = originalArray.size();
+
+    vector<int> sortedArray(arraySize);
+
+    // Build a map to store the index of each element in the original array
+    for (int i = 0; i < arraySize; ++i) {
+        elementIndexMap[originalArray[i]] = i;
+        sortedArray[i] = originalArray[i];
+    }
+
+    // Sort the copy of the original array
+    sort(sortedArray.begin(), sortedArray.end());
+
+    // Perform swaps to bring elements to their correct positions
+    for (int i = 0; i < arraySize; ++i) {
+        if (sortedArray[i] != originalArray[i]) {
+            int destinationIndex = elementIndexMap[sortedArray[i]];
+            int currentValue = originalArray[i];
+
+            // Swap elements to bring them to their correct positions
+            swap(originalArray[i], originalArray[destinationIndex]);
+
+            // Update the index map after the swap
+            elementIndexMap[sortedArray[i]] = i;
+            elementIndexMap[currentValue] = destinationIndex;
+
+            swapCount++;
+        }
+    }
+
+    return swapCount;
+}
 
 
 int main() {
