@@ -1,6 +1,38 @@
 
 #include<bits/stdc++.h>
 using namespace std;
+
+/*
+Maximize Toys
+Given an array arr[ ] of length N consisting cost of N toys and an integer K depicting the amount with you. 
+Your task is to find maximum number of toys you can buy with K amount. 
+
+*/
+
+// Function to calculate the maximum number of toys that can be bought with a given budget K
+int toyCount(int N, int K, vector<int> arr)
+{
+    // Initialize toy_count to keep track of the number of toys bought
+    int toy_count = 0;
+
+    // Sort the array in ascending order to prioritize buying cheaper toys first
+    sort(arr.begin(), arr.end());
+
+    // Iterate through the sorted array to select toys until the budget is exhausted
+    for(int i = 0; i < N; ++i) {
+        // Check if the current toy's price exceeds the remaining budget
+        if(K < arr[i])
+            return toy_count; // If so, return the current toy_count as it cannot be bought
+        else 
+            K -= arr[i]; // Subtract the cost of the current toy from the remaining budget
+        ++toy_count; // Increment the toy_count as the toy has been successfully bought
+    }
+
+    // Return the final toy_count representing the maximum number of toys that can be bought
+    return toy_count;
+}
+
+
 /*
 Activity Selection
 Given N activities with their start and finish day given in array start[ ] and end[ ]. 
